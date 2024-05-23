@@ -1,9 +1,14 @@
-import { Image, ImageBackground, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
+    const navigation = useNavigation();
+    const handleRegister = ()=>{
+        navigation.navigate("SignUp");
+    }
   return (
     <View style={styles.container}>
       <View style={styles.topImageContainer}>
@@ -33,7 +38,11 @@ const LoginScreen = () => {
           <AntDesign name={"arrowright"} style={styles.RowButton} />
         </View>
       </View>
-      <Text style={styles.donthaveAccount}>Don't have an account? <Text style={{textDecorationLine : "underline"}} >Create here </Text></Text>
+      <TouchableOpacity onPress={handleRegister}>
+      <Text style={styles.donthaveAccount}>Don't have an account? 
+        <Text style={{textDecorationLine : "underline"}} >Create here </Text>
+        </Text>
+      </TouchableOpacity>
       <View style={styles.leftVectorContainer}>
         <ImageBackground source=
             {require("./pics/v.jpg")} style={styles.leftVectorImg}/>
@@ -143,121 +152,3 @@ const styles = StyleSheet.create({
 });
 
 
-
-
-// import { Image, StyleSheet, Text, TextInput, View } from 'react-native'
-// import React from 'react'
-// import { FontAwesome,AntDesign } from 'react-native-vector-icons';
-// import LinearGradient from 'react-native-linear-gradient';
-
-
-// const LoginScreen = () => {
-//   return (
-//     <View style={styles.container}>
-//         <View style={styles.topImageContainer}>
-//             <Image source = {require("./pics/topVector.png")}
-//             style={styles.topImage}
-//             />
-//         </View>
-//         <View style={styles.hellocontainer}>
-//             <Text style={styles.welcometext}>StudyHub</Text>
-//         </View>
-//         <View>
-//             <Text style={styles.signInText}>Sign in to your account</Text>
-//         </View>
-//         <View style={styles.inputContainer}>
-//             <FontAwesome name={"user"} size ={24} color={"#9A9A9A"} 
-//             style={styles.inputIcon} />  
-//             <TextInput style={styles.textInput} placeholder="Email"></TextInput>
-//         </View>
-//         <View style={styles.inputContainer}>
-//             <FontAwesome name={"lock"} size ={24} color={"#9A9A9A"} 
-//             style={styles.inputIcon} />  
-//             <TextInput style={styles.textInput} placeholder="Password" secureTextEntry></TextInput>
-//         </View>
-//         <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
-//         <View style={styles.signInButtonContainer}>
-//             <Text style={styles.signInText2}>Log in</Text>
-           
-//             <AntDesign name={"arrowright"} style={styles.RowButton} />  
-//         </View>
-//     </View>
-//   )
-// }
-
-// export default LoginScreen
-
-// const styles = StyleSheet.create({
-//     container:{
-//         backgroundColor:"F5F5F5",
-//         flex: 1,
-//     },
-//     topImageContainer:{
-//     },
-//     topImage:{
-//         width: "100%",
-//         height: 180,
-//     },
-//     hellocontainer:{
-//     },
-//     welcometext:{
-//         textAlign: "center",
-//         fontSize: 60,
-//         fontWeight: "bold",
-//         color: "#262626"
-//     },
-//     signInText:{
-//         marginTop:10,
-//         textAlign: "center",
-//         fontSize: 18,
-//         color: "#262626",
-//         marginBottom:50,
-//     },
-//     inputContainer:{
-//         backgroundColor: "#FFFFFF",
-//         flexDirection: "row",
-//         borderRadius: 20,
-//         marginHorizontal: 60,
-//         elevation: 10,
-//         marginVertical: 20,
-//         height:50,
-//         alignItems: "center",
-//     },
-//     inputIcon:{
-//         marginLeft: 15,
-//         marginRight: 5,
-//     },
-//     textInput:{
-//         flex: 1,
-//         marginLeft: 10,
-//         fontSize: 18,
-//         color: "#262626",
-//     },
-//     forgotPasswordText:{
-//         color: "#BEBEBE",
-//         textAlign:"right",
-//         width:"90%",
-//         fontSize: 15
-//     },
-//     signInButtonContainer:{
-//         flexDirection:"row",
-//     },
-//     signInText2:{
-//         color: "#262626",
-//         fontSize: 25,
-//         fontWeight: "bold",
-//     },
-//     RowButton:{
-//         height: 34,
-//         fontSize: 35,
-//         color: "#262626",
-//         marginLeft: 10,
-//         backgroundColor:"#BEBEBE",
-//         width: 65,
-//         borderRadius: 17,
-//         alignItems:"center",
-//         marginHorizontal:10,
-
-//     }
-
-// })
