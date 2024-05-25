@@ -1,10 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Image, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { auth } from './firebase'; // Import your Firebase auth instance
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [major, setMajor] = useState('');
+
+  const handleSignUp = async () => {
+    if (!fullName || !email || !password || !major) {
+      alert("Please fill in all fields before signing up");
+      return;
+    }
+    try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+        const user = userCredential.user;
+        saveUserDetails(user.uid);
+        console.log("UserDetails :" , user)
+        navigation.navigate("Home");
+      
+    }catch (error) {
+      console.log("Error signing up:", error);
+      alert("An error occurred while signing up. Please try again.");
+    }
+    setFullName("");
+    setEmail("");
+    setPassword("");
+    setMajor("");
+  };
+
+  const saveUserDetails = async (userId) => {
+    const db = getFirestore();
+    const userRef = doc(db, "users", userId);
+    await setDoc(userRef, {
+      fullName: fullName,
+      email: email,
+      major: major,
+      password: password,
+    });
+    console.log("User data saved successfully!");
+
+  };
+
   const handleLogin = () => {
     navigation.navigate("Login");
   }
@@ -25,22 +68,26 @@ const SignUpScreen = () => {
       </View>
       <View style={styles.inputContainer}>
         <FontAwesome name={"user"} size={24} color={"#9A9A9A"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder="Full Name" />
+        <TextInput style={styles.textInput} placeholder="Full Name" value={fullName}
+          onChangeText={setFullName}/>
       </View>
       <View style={styles.inputContainer}>
         <FontAwesome name={"book"} size={24} color={"#9A9A9A"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder="Major" />
+        <TextInput style={styles.textInput} placeholder="Major" value={major}
+          onChangeText={setMajor}/>
       </View>
       <View style={styles.inputContainer}>
         <FontAwesome name={"envelope"} size={24} color={"#9A9A9A"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder="Email" />
+        <TextInput style={styles.textInput} placeholder="Email" value={email}
+          onChangeText={setEmail}/>
       </View>
     
       <View style={styles.inputContainer}>
         <FontAwesome name={"lock"} size={24} color={"#9A9A9A"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder="Password" secureTextEntry />
+        <TextInput style={styles.textInput} placeholder="Password" secureTextEntry value={password}
+          onChangeText={setPassword}/>
       </View>
-      <TouchableOpacity style={styles.signInButtonContainer}>
+      <TouchableOpacity style={styles.signInButtonContainer} onPress={handleSignUp}>
         <Text style={styles.signInText2}>Sign Up</Text>
         <AntDesign name={"arrowright"} style={styles.RowButton} />
       </TouchableOpacity>
@@ -136,17 +183,3 @@ const styles = StyleSheet.create({
   }
 });
 
-// import { StyleSheet, Text, View } from 'react-native'
-// import React from 'react'
-
-// const SignupScreen = () => {
-//   return (
-//     <View>
-//       <Text>SignupScreen</Text>
-//     </View>
-//   )
-// }
-
-// export default SignupScreen
-
-// const styles = StyleSheet.create({})

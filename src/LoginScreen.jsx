@@ -1,11 +1,32 @@
 import { Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { auth } from './firebase'; // Import your Firebase auth instance
+import { loginWithEmailAndPassword } from "./firebase";
+
 
 const LoginScreen = () => {
     const navigation = useNavigation();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+  
+    const handleLogin = async () => {
+      try {
+        const result = await loginWithEmailAndPassword(email, password);
+        if (result.user.uid) {
+          navigation.navigate("Home");
+        } else {
+          alert("Invalid email or password. Please try again");
+        }
+        console.log(result);
+      } catch (error) {
+        alert("Invalid email or password. Please try again");
+      }
+      setEmail("");
+      setPassword("");
+    };
     const handleRegister = ()=>{
         navigation.navigate("SignUp");
     }
@@ -25,19 +46,21 @@ const LoginScreen = () => {
       </View>
       <View style={styles.inputContainer}>
         <FontAwesome name={"user"} size={24} color={"#9A9A9A"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder="Email" />
+        <TextInput style={styles.textInput} placeholder="Email" value={email}
+          onChangeText={setEmail} />
       </View>
       <View style={styles.inputContainer}>
         <FontAwesome name={"lock"} size={24} color={"#9A9A9A"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder="Password" secureTextEntry />
+        <TextInput style={styles.textInput} placeholder="Password" secureTextEntry value={password}
+          onChangeText={setPassword}/>
       </View>
       <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
-      <View style={styles.signInButtonContainer}>
+      <TouchableOpacity style={styles.signInButtonContainer} onPress={handleLogin}>
         <Text style={styles.signInText2}>Log in</Text>
         <View style={styles.arrowContainer}>
           <AntDesign name={"arrowright"} style={styles.RowButton} />
         </View>
-      </View>
+      </TouchableOpacity>
       <TouchableOpacity onPress={handleRegister}>
       <Text style={styles.donthaveAccount}>Don't have an account? 
         <Text style={{textDecorationLine : "underline"}} >Create here </Text>

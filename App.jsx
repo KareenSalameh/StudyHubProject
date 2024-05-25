@@ -8,6 +8,7 @@ import LoginScreen from './src/LoginScreen';
 import SignupScreen from './src/SignupScreen'; 
 import { useFonts } from 'expo-font';
 import { FontAwesome } from '@expo/vector-icons';
+import HomeScreen from './src/HomeScreen';
 
 // Inside your component or App.js
 
@@ -25,6 +26,8 @@ const App = () => {
       >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignupScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
