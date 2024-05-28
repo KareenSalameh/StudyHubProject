@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { View, Image, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from './firebase'; // Import your Firebase auth instance
+import { auth } from './firebase'; 
 import { getFirestore, doc, setDoc } from "firebase/firestore";
+
+
+
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 
 const SignUpScreen = () => {
@@ -89,8 +92,11 @@ const SignUpScreen = () => {
       </View>
       <TouchableOpacity style={styles.signInButtonContainer} onPress={handleSignUp}>
         <Text style={styles.signInText2}>Sign Up</Text>
+        <View style={styles.arrowContainer}>
         <AntDesign name={"arrowright"} style={styles.RowButton} />
+        </View>
       </TouchableOpacity>
+
       <TouchableOpacity onPress={handleLogin}>
         <Text style={styles.haveAccount}>Already have an account? 
           <Text style={{textDecorationLine: "underline"}}> Log in here</Text>
@@ -152,14 +158,25 @@ const styles = StyleSheet.create({
   signInButtonContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 220,
+    marginLeft: 200,
     marginVertical: 40,
+    marginBottom: 65,
   },
   signInText2: {
     color: "#262626",
     fontSize: 34,
     fontWeight: "bold",
     elevation: 15
+  },
+  arrowContainer: {
+    marginLeft: 15,
+    marginTop: 5,
+    backgroundColor: "#d180b2",
+    borderRadius: 17,
+    width: 56,
+    height: 34,
+    justifyContent: "center",
+    alignItems: "center",
   },
   RowButton: {
     color: "#262626",
@@ -169,7 +186,7 @@ const styles = StyleSheet.create({
     textAlign:"center",
     color:"#262626",
     fontSize: 15,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   leftVectorContainer:{
     position: "absolute",

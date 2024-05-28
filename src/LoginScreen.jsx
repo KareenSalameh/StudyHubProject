@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
     color: "#262626",
     fontSize: 34,
     fontWeight: "bold",
-    elevation: 15
   },
   arrowContainer: {
     marginLeft: 10,
@@ -148,7 +147,6 @@ const styles = StyleSheet.create({
     height: 34,
     justifyContent: "center",
     alignItems: "center",
-    elevation: 10
   },
   RowButton: {
     color: "#262626",
