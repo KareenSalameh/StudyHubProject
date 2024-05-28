@@ -4,17 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 
 const BottomNavBar = ({ navigation }) => {
   const handleHome = () => {
-    // Handle navigation to Home screen
     navigation.navigate("Home");
   };
 
   const handleProfile = () => {
-    // Handle navigation to Profile screen
     navigation.navigate("Profile");
   };
 
   const handleLogout = () => {
-    // Handle logout
     navigation.navigate("Login");
   };
 
@@ -44,23 +41,31 @@ const styles = StyleSheet.create({
     bottom: 170,
     width: 400,
     padding: 10,
-    backgroundColor: 'transparent',
     transform: [{ rotate: '180deg' }]
 
   },
   navItem1: {
+    position: 'absolute',
     alignItems: 'center',
-    bottom:2,
-    left: 35,
+    bottom:12,
+    left: 80,
+    color: '#262626',
+
+    
   },
   navItem2: {
+    position: 'absolute',
     alignItems: 'center',
-    left: 40,
+    right: 140,
+    bottom:10,
+
+
   },
   navItem3: {
+    position: 'absolute',
     alignItems: 'center',
-    bottom:2,
-    left: 45,
+    bottom:14,
+    right: 7,
    
   },
   navItemText: {
