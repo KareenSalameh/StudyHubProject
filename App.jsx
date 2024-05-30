@@ -11,8 +11,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import HomeScreen from './src/HomeScreen';
 import ProfileScreen from './src/ProfileScreen';
 import AddPost from './src/AddPost';
-
-// Inside your component or App.js
+import MyPosts from './src/MyPosts';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,15 +22,13 @@ const App = () => {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-        
-        }}
-      >
+        }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignupScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="AddPost" component={AddPost} />
-
+        <Stack.Screen name="MyPosts" component={MyPosts} />
       </Stack.Navigator>
     </NavigationContainer>
   );

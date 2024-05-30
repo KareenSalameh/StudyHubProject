@@ -15,6 +15,10 @@ const BottomNavBar = ({ navigation }) => {
     navigation.navigate("Login");
   };
 
+  const handleMyPosts = () => {
+    navigation.navigate("MyPosts");
+  };
+
   return (
     <View style={styles.bottomNavBar}>
     <TouchableOpacity style={styles.navItem1} onPress={handleHome}>
@@ -24,6 +28,11 @@ const BottomNavBar = ({ navigation }) => {
     <TouchableOpacity style={styles.navItem2} onPress={handleProfile}>
       <Ionicons name="person-circle-outline" size={30} color="white" />
       <Text style={styles.navItemText}>Profile</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.MypostItem} onPress={handleMyPosts}>
+      <Ionicons name="list-outline" size={30} color="white"/>
+      <Text style={styles.navItemText}>My Posts</Text>
+
     </TouchableOpacity>
     <TouchableOpacity style={styles.navItem3} onPress={handleLogout}>
       <Ionicons name="log-out-outline" size={30} color="white" />
@@ -47,26 +56,29 @@ const styles = StyleSheet.create({
   navItem1: {
     position: 'absolute',
     alignItems: 'center',
-    bottom:12,
-    left: 80,
+    bottom:13,
+    left: 40,
     color: '#262626',
-
-    
+  },
+  MypostItem:{
+    position: 'absolute',
+    alignItems: 'center',
+    bottom:13,
+    right: 205,
+    color: '#262626',
   },
   navItem2: {
     position: 'absolute',
     alignItems: 'center',
-    right: 140,
-    bottom:10,
-
-
+    right: 108,
+    bottom:9,
   },
   navItem3: {
     position: 'absolute',
     alignItems: 'center',
     bottom:14,
     right: 7,
-   
+  
   },
   navItemText: {
     color: '#fff',

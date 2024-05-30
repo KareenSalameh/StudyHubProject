@@ -1,13 +1,9 @@
-// Import necessary functions from the modular SDK
-// Import getAnalytics if you plan to use Firebase Analytics
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import {  getFirestore,} from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStorage } from "firebase/storage";
-
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -22,19 +18,27 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
 
-//const auth = getAuth(app);
+// Initialize Firebase Auth
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
+
+// Initialize Firebase Analytics if supported
 isSupported().then((supported) => {
   if (supported) {
     getAnalytics(app);
   }
 });
 
-const loginWithEmailAndPassword = async (email, password) => {
+// Export Firebase Auth and other Firebase services
+export const FIREBASE_APP = app;
+export const FIREBASE_AUTH = auth;
+export const FIRESTORE_DB = getFirestore(app);
+export const STORAGE = getStorage(app);
+
+// Export signInWithEmailAndPassword function
+export const loginWithEmailAndPassword = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential;
@@ -42,6 +46,8 @@ const loginWithEmailAndPassword = async (email, password) => {
     throw error;
   }
 };
+
+
 /**
  * 
  * export const getAllPosts = async () => {
@@ -250,10 +256,5 @@ export const updateUsername = async (userId, newUsername) => {
   }
 };
 */
-
-export { auth, loginWithEmailAndPassword };
-export const FIREBASE_APP = initializeApp(firebaseConfig);
-export const FIREBASE_AUTH = getAuth(FIREBASE_APP);
-export const FIRESTORE_DB = getFirestore(FIREBASE_APP);
 
 

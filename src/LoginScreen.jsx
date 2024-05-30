@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     left: -50,
-    transform: [{ rotate: '220deg' }], // Rotate the image by 45 degrees
+    transform: [{ rotate: '220deg' }], 
 
   },
   leftVectorImg:{
