@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Image, Text, View, FlatList, TouchableOpacity, Modal, Button, StyleSheet } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
 import BottomNavBar from './BottomNavBar';
 import Post from './Post';
 
@@ -11,11 +11,21 @@ const HomeScreen = () => {
 
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [filterCriteria, setFilterCriteria] = useState({
+    studyTime: null,
+    // Add other filter criteria here
+  });
 
   const fetchPosts = async () => {
     try {
       const firestore = getFirestore();
-      const querySnapshot = await getDocs(collection(firestore, 'posts'));
+      let filteredQuery = collection(firestore, 'posts');
+      
+      if (filterCriteria.studyTime) {
+        filteredQuery = query(filteredQuery, where("studyTime", "==", filterCriteria.studyTime));
+      }
+      
+      const querySnapshot = await getDocs(filteredQuery);
       const postsArray = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -28,12 +38,12 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [filterCriteria]);
 
   useFocusEffect(
     React.useCallback(() => {
       fetchPosts();
-    }, [])
+    }, [filterCriteria])
   );
 
   const handleAddPost = () => {
@@ -42,6 +52,16 @@ const HomeScreen = () => {
 
   const toggleFilterModal = () => {
     setFilterModalVisible(!isFilterModalVisible);
+  };
+
+  const resetFilter = () => {
+    setFilterCriteria({
+      studyTime: null,
+      // Reset other filter criteria here
+    });
+  };
+  const applyFilter = () => {
+    setFilterModalVisible(false);
   };
 
   return (
@@ -72,7 +92,6 @@ const HomeScreen = () => {
             studyType={item.studyType}
             major={item.major}
             showActions={false}
-
           />
         )}
         keyExtractor={(item) => item.id}
@@ -87,7 +106,27 @@ const HomeScreen = () => {
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Filter Options</Text>
-            <Button title="Close" onPress={toggleFilterModal} />
+            <View style={styles.filterOption}>
+              <Text>Study Time:</Text>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => setFilterCriteria({ ...filterCriteria, studyTime: 'Day' })}
+              >
+                <Text>Day</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => setFilterCriteria({ ...filterCriteria, studyTime: 'Night' })}
+              >
+                <Text>Night</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Apply and Reset buttons */}
+            <View style={styles.buttonContainer}>
+              <Button title="Reset" onPress={resetFilter} />
+              <Button title="Apply" onPress={applyFilter} />
+            </View>
           </View>
         </View>
       </Modal>
@@ -186,7 +225,6 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 100,
   },
- 
 });
 
 export default HomeScreen;
