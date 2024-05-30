@@ -12,6 +12,7 @@ import HomeScreen from './src/HomeScreen';
 import ProfileScreen from './src/ProfileScreen';
 import AddPost from './src/AddPost';
 import MyPosts from './src/MyPosts';
+import EditPost from './src/EditPost';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +30,8 @@ const App = () => {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="AddPost" component={AddPost} />
         <Stack.Screen name="MyPosts" component={MyPosts} />
+        <Stack.Screen name="EditPost" component={EditPost} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

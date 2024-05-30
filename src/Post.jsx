@@ -26,7 +26,9 @@ const Post = ({ id, userName, description, estimatedStudyTime, studyTime, studyT
         <Text style={styles.postDetails}>Study Type: {studyType}</Text>
         <Text style={styles.postDetails}>Major: {major}</Text>
         <View style={styles.buttonContainer}>
-          <Button title="Join" onPress={() => {/* Handle Join Press */}} />
+            <TouchableOpacity style={styles.joinButton} onPress={() => {/* Handle Join Press */}}>
+                <Text style={styles.joinButtonText}>Join via Zoom</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -76,12 +78,20 @@ const styles = StyleSheet.create({
     margin:8,
   },
   buttonContainer: {
-    backgroundColor: '#262626',
-    borderRadius: 5,
-    marginBottom:1,
-    marginLeft: 240,
-    width: 100,
+    alignItems: 'flex-end',
     marginTop: -30,
+  },
+  joinButton: {
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 5,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+  },
+  joinButtonText: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   
 });

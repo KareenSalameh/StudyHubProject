@@ -1,82 +1,79 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { getAuth } from "firebase/auth";
-import { getFirestore, collection, addDoc, doc, getDoc } from "firebase/firestore";
+import { View, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity, Text, Alert } from 'react-native';
+import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 
-const AddPost = () => {
+const EditPost = ({ route }) => {
+  const { postId } = route.params;
+  const [post, setPost] = useState(null);
   const [description, setDescription] = useState('');
   const [estimatedStudyTime, setEstimatedStudyTime] = useState('');
+  const [major, setMajor] = useState('');
   const [studyTime, setStudyTime] = useState('Day');
   const [studyType, setStudyType] = useState('Partner');
-  const [major, setMajor] = useState('');
-  const [fullName, setFullName] = useState('');
 
   const navigation = useNavigation();
-  const auth = getAuth();
-  const user = auth.currentUser;
 
   useEffect(() => {
-    async function fetchFullName() {
+    const fetchPost = async () => {
       try {
-        if (user) {
-          const firestore = getFirestore();
-          const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setFullName(userData.fullName);
-          }
+        const firestore = getFirestore();
+        const postDoc = await getDoc(doc(firestore, "posts", postId));
+        if (postDoc.exists()) {
+          const postData = postDoc.data();
+          setPost(postData);
+          setDescription(postData.description);
+          setEstimatedStudyTime(postData.estimatedStudyTime);
+          setMajor(postData.major);
+          setStudyTime(postData.studyTime);
+          setStudyType(postData.studyType);
         }
       } catch (error) {
-        console.error("Error fetching user's full name:", error);
+        console.error("Error fetching post:", error);
       }
-    }
+    };
 
-    fetchFullName();
-  }, [user]);
+    fetchPost();
+  }, [postId]);
 
-  const handlePublish = async () => {
-    if (!user) {
-      Alert.alert('Error', 'No user is logged in');
-      return;
-    }
-
+  const handleUpdate = async () => {
     try {
       const firestore = getFirestore();
-      await addDoc(collection(firestore, 'posts'), {
-        userId: user.uid,
-        userName: fullName,
-        description: description,
-        estimatedStudyTime: estimatedStudyTime,
-        studyTime: studyTime,
-        studyType: studyType,
-        major: major,
-        createdAt: new Date(),
+      await updateDoc(doc(firestore, "posts", postId), {
+        description,
+        estimatedStudyTime,
+        major,
+        studyTime,
+        studyType
       });
-      Alert.alert('Success', 'Post published successfully!');
-      navigation.navigate('Home');
+      Alert.alert('Success', 'Post updated successfully!');
+      navigation.goBack();
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong while publishing the post');
-      console.error(error);
+      Alert.alert('Error', 'Something went wrong while updating the post');
+      console.error("Error updating post:", error);
     }
   };
 
+  if (!post) {
+    return null; // or a loading spinner
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add Post</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Edit Post</Text>
       <TextInput
         style={styles.textInput1}
-        placeholder="Description"
         value={description}
         onChangeText={setDescription}
+        placeholder="Edit Description"
         multiline
       />
       <TextInput
         style={styles.textInput}
-        placeholder="Estimated Study Time (hours)"
         value={estimatedStudyTime}
         onChangeText={setEstimatedStudyTime}
+        placeholder="Edit Estimated Study Time"
         keyboardType="numeric"
       />
       <View style={styles.pickerContainer}>
@@ -103,26 +100,24 @@ const AddPost = () => {
       </View>
       <TextInput
         style={styles.textInput}
-        placeholder="Major"
         value={major}
         onChangeText={setMajor}
+        placeholder="Edit Major"
       />
-      <TouchableOpacity style={styles.publishButton} onPress={handlePublish}>
-        <Text style={styles.publishButtonText}>Post</Text>
+      <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
+        <Text style={styles.updateButtonText}>Update Post</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
         <Text style={styles.cancelButtonText}>Cancel</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
-
-export default AddPost;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop:50,
+    marginTop: 50,
     padding: 20,
     backgroundColor: '#F5F5F5',
   },
@@ -160,14 +155,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 2,
   },
-  publishButton: {
+  updateButton: {
     backgroundColor: '#007BFF',
     paddingVertical: 15,
     borderRadius: 10,
     marginTop: 30,
     alignItems: 'center',
   },
-  publishButtonText: {
+  updateButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
@@ -185,3 +180,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default EditPost;
