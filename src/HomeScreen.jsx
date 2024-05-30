@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
 import BottomNavBar from './BottomNavBar';
 import Post from './Post';
+import { TextInput } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -13,7 +15,7 @@ const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
   const [filterCriteria, setFilterCriteria] = useState({
     studyTime: null,
-    // Add other filter criteria here
+    studyTime: false,
   });
 
   const fetchPosts = async () => {
@@ -24,7 +26,9 @@ const HomeScreen = () => {
       if (filterCriteria.studyTime) {
         filteredQuery = query(filteredQuery, where("studyTime", "==", filterCriteria.studyTime));
       }
-      
+      if (filterCriteria.studyType) {
+        filteredQuery = query(filteredQuery, where("studyType", "==", filterCriteria.studyType));
+      }
       const querySnapshot = await getDocs(filteredQuery);
       const postsArray = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -57,7 +61,7 @@ const HomeScreen = () => {
   const resetFilter = () => {
     setFilterCriteria({
       studyTime: null,
-      // Reset other filter criteria here
+      studyTime: false,
     });
   };
   const applyFilter = () => {
@@ -106,6 +110,8 @@ const HomeScreen = () => {
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Filter Options</Text>
+
+            {/* Study Time */}
             <View style={styles.filterOption}>
               <Text>Study Time:</Text>
               <TouchableOpacity
@@ -122,14 +128,32 @@ const HomeScreen = () => {
               </TouchableOpacity>
             </View>
 
+          {/* Partner or group */}
+          <View style={styles.filterOption}>
+            <Text>Partner or Group :</Text>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => setFilterCriteria({ ...filterCriteria, studyType: 'Partner' })}
+              >
+                <Text>Partner</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => setFilterCriteria({ ...filterCriteria, studyType: 'Group' })}
+              >
+                <Text>Group</Text>
+              </TouchableOpacity>
+            </View>
+
             {/* Apply and Reset buttons */}
             <View style={styles.buttonContainer}>
-              <Button title="Reset" onPress={resetFilter} />
-              <Button title="Apply" onPress={applyFilter} />
+              <Button style={styles.buttonReset} title="Reset" onPress={resetFilter} />
+              <Button style={styles.buttonApply} title="Apply" onPress={applyFilter} />
             </View>
           </View>
         </View>
       </Modal>
+
 
       <View style={styles.bottomImageContainer}>
         <Image 
@@ -214,6 +238,24 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 20,
   },
+  filterOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  optionButton: {
+    marginLeft: 10,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  
+  },
   bottomImageContainer: {
     alignItems: 'center',
     height: 90,
@@ -225,6 +267,16 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 100,
   },
+  input: {
+    width: 50,
+    height: 30,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginLeft: 10,
+    paddingHorizontal: 5,
+  },
+  
 });
 
 export default HomeScreen;
