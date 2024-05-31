@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { View, Image, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from './firebase'; 
+import { auth, storage } from './firebase';
 import { getFirestore, doc, setDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from 'expo-image-picker';
-import { storage } from './firebase'; 
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
@@ -18,14 +17,20 @@ const SignUpScreen = () => {
   const [image, setImage] = useState(null);
 
   const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need camera roll permissions to make this work!');
+      return;
+    }
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1],
+      aspect: [1, 1], 
       quality: 1,
     });
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImage(result.uri);
     }
   };
@@ -52,6 +57,7 @@ const SignUpScreen = () => {
     setEmail("");
     setPassword("");
     setMajor("");
+    setImage(null); 
   };
 
   const uploadImage = async (userId) => {
@@ -59,9 +65,16 @@ const SignUpScreen = () => {
       const response = await fetch(image);
       const blob = await response.blob();
       const storageRef = ref(storage, `profile_images/${userId}.jpg`);
-      await uploadBytes(storageRef, blob);
-      const downloadURL = await getDownloadURL(storageRef);
-      return downloadURL;
+      const uploadTask = uploadBytesResumable(storageRef, blob);
+
+      try {
+        await uploadTask;
+        const downloadURL = await getDownloadURL(storageRef);
+        return downloadURL;
+      } catch (error) {
+        console.log("Error getting download URL:", error);
+        return null;
+      }
     }
     return null;
   };
@@ -73,7 +86,7 @@ const SignUpScreen = () => {
       fullName: fullName,
       email: email,
       major: major,
-      profileImageUrl: profileImageUrl,
+      profileImageUrl: profileImageUrl || null,
     });
     console.log("User data saved successfully!");
   };
@@ -93,13 +106,13 @@ const SignUpScreen = () => {
       <View style={styles.helloContainer}>
         <Text style={styles.welcomeText}>StudyHub</Text>
       </View>
-      <View>
-        <Text style={styles.signInText}>Create your account</Text>
-      </View>
       <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
-        <Text style={styles.imagePickerText}>Pick a Profile Picture</Text>
-        {image && <Image source={{ uri: image }} style={styles.profileImage} />}
+        <Text style={styles.imagePickerText}>Pick a new Image</Text>
+        <View style={styles.imagePreviewContainer}>
+          <Image source={require("./ava.png")} style={styles.profileImage} />
+        </View>
       </TouchableOpacity>
+
       <View style={styles.inputContainer}>
         <FontAwesome name={"user"} size={24} color={"#9A9A9A"} style={styles.inputIcon} />
         <TextInput style={styles.textInput} placeholder="Full Name" value={fullName}
@@ -156,27 +169,28 @@ const styles = StyleSheet.create({
     fontSize: 60,
     fontWeight: "bold",
     color: "#262626",
-  },
-  signInText: {
-    marginTop: 10,
-    textAlign: "center",
-    fontSize: 18,
-    color: "#262626",
-    marginBottom: 38,
+    top: -12,
   },
   imagePicker: {
+    flexDirection: "row",
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 45,
   },
   imagePickerText: {
     fontSize: 18,
     color: '#007BFF',
+    left :130,
+    top:50,
+  },
+  imagePreviewContainer: {
+    width: 80,
+    height: 80,
+    marginTop: 5,
+    left: 20,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginTop: 10,
+    width: '100%',
+    height: '100%',
   },
   inputContainer: {
     backgroundColor: "#FFFFFF",
@@ -201,9 +215,9 @@ const styles = StyleSheet.create({
   signInButtonContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 200,
-    marginVertical: 40,
-    marginBottom: 25,
+    marginLeft: 190,
+    marginVertical: 35,
+    marginBottom: 35,
   },
   signInText2: {
     color: "#262626",
@@ -229,7 +243,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#262626",
     fontSize: 15,
-    marginRight: 40,
+    marginRight: 90,
   },
   leftVectorContainer: {
     position: "absolute",
@@ -242,3 +256,4 @@ const styles = StyleSheet.create({
     height: 100,
   },
 });
+

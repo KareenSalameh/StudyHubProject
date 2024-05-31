@@ -5,8 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
 import BottomNavBar from './BottomNavBar';
 import Post from './Post';
-import { TextInput } from 'react-native';
-import CheckBox from '@react-native-community/checkbox';
 
 const HomeScreen = () => {
   const navigation = useNavigation();

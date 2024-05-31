@@ -105,10 +105,11 @@ const ProfileScreen = () => {
       
         <TouchableOpacity onPress={handlePickImage}>
         <Image 
-          source={profileImageUrl ? { uri: profileImageUrl } : require('./pics/avatar.jpg')} 
+          source={profileImageUrl ? { uri: profileImageUrl } : require('./ava.png')} 
           style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]} 
         />
         </TouchableOpacity>
+       
 
         {isEditing ? (
           <>
@@ -229,14 +230,11 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 120,
     height: 120,
-    borderRadius: 60,
-    marginBottom: 20,
-    borderColor: '#262626',
-    borderWidth: 2,
+    marginBottom:40,
   },
   defaultProfileImage: {
-    borderColor: '#262626',
-    borderWidth: 2, 
+   
+
   },  
   name: {
     fontSize: 24,

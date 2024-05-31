@@ -56,7 +56,7 @@ const EditPost = ({ route }) => {
   };
 
   if (!post) {
-    return null; // or a loading spinner
+    return null; 
   }
 
   return (

@@ -1,12 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 
-const Post = ({ id, userName, description, estimatedStudyTime, studyTime, studyType, major, onDelete, onEdit, showActions }) => {
+const Post = ({ id, userName,profileImage, description, estimatedStudyTime, studyTime, studyType, major, onDelete, onEdit, showActions }) => {
+    const [profileImageUrl, setProfileImageUrl] = useState(null);
+
     return (
       <View style={styles.post}>
+        <View style={styles.user}>
+        <Image 
+          source={profileImageUrl ? { uri: profileImageUrl } : require('./ava.png')} 
+          style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]} 
+        />
         <View style={styles.header}>
           <Text style={styles.postTitle}>{userName}</Text>
+          </View>
           {showActions && (
             <View style={styles.iconContainer}>
               <TouchableOpacity onPress={() => onEdit(id)}>
@@ -46,20 +55,32 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 2,
   },
+  user:{
+    flexDirection: 'row',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
   },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  
   iconContainer: {
     flexDirection: 'row',
     gap: 10,
+    left : 150,
   },
   postTitle: {
     fontSize: 18,
+    top:10,
     fontWeight: 'bold',
     marginBottom: 20,
+    left : 10,
   },
   descriptionContainer: {
     borderWidth: 1,

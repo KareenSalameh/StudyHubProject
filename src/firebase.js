@@ -1,10 +1,10 @@
-import { getAnalytics, isSupported } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getStorage } from "firebase/storage";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const firebaseConfig = {
@@ -19,23 +19,25 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-});
-
-isSupported().then((supported) => {
-  if (supported) {
-    getAnalytics(app);
+let auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch (error) {
+  if (error.code === 'auth/already-initialized') {
+    auth = getAuth(app);
+  } else {
+    throw error;
   }
-});
+}
 
-export const FIREBASE_APP = app;
-export const FIREBASE_AUTH = auth;
-export const FIRESTORE_DB = getFirestore(app);
-export const STORAGE = getStorage(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-// Export signInWithEmailAndPassword function
-export const loginWithEmailAndPassword = async (email, password) => {
+export { auth, db, storage };
+
+const loginWithEmailAndPassword = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential;
@@ -44,3 +46,4 @@ export const loginWithEmailAndPassword = async (email, password) => {
   }
 };
 
+export { loginWithEmailAndPassword };
