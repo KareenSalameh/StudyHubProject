@@ -17,21 +17,37 @@ const SignUpScreen = () => {
   const [image, setImage] = useState(null);
 
   const handlePickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to make this work!');
-      return;
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1], 
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.uri);
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaType: 'photo' });
+    if (result.assets && result.assets.length > 0) {
+      try {
+        const selectedImage = result.assets[0];
+        const response = await fetch(selectedImage.uri);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `profile_images/${selectedImage.fileName}`);
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+  
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Upload is ${progress}% done`);
+          },
+          (error) => {
+            console.error('Error uploading image:', error);
+            alert('Failed to upload Image, Try again');
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              console.log('File available at', downloadURL);
+              setImage(downloadURL);
+              saveUserDetails(user.uid, downloadURL); // Move saveUserDetails call here
+            });
+          }
+        );
+      } catch (error) {
+        console.error('Error picking image:', error);
+        alert('Failed to upload Image, Try again');
+      }
     }
   };
 
@@ -44,9 +60,10 @@ const SignUpScreen = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      const profileImageUrl = await uploadImage(user.uid);
-      saveUserDetails(user.uid, profileImageUrl);
+      await handlePickImage(); 
       console.log("UserDetails:", user);
+      await saveUserDetails(user.uid, image); 
+
       navigation.navigate("Login");
     } catch (error) {
       console.log("Error signing up:", error);
@@ -58,25 +75,6 @@ const SignUpScreen = () => {
     setPassword("");
     setMajor("");
     setImage(null); 
-  };
-
-  const uploadImage = async (userId) => {
-    if (image) {
-      const response = await fetch(image);
-      const blob = await response.blob();
-      const storageRef = ref(storage, `profile_images/${userId}.jpg`);
-      const uploadTask = uploadBytesResumable(storageRef, blob);
-
-      try {
-        await uploadTask;
-        const downloadURL = await getDownloadURL(storageRef);
-        return downloadURL;
-      } catch (error) {
-        console.log("Error getting download URL:", error);
-        return null;
-      }
-    }
-    return null;
   };
 
   const saveUserDetails = async (userId, profileImageUrl) => {
@@ -109,8 +107,11 @@ const SignUpScreen = () => {
       <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
         <Text style={styles.imagePickerText}>Pick a new Image</Text>
         <View style={styles.imagePreviewContainer}>
-          <Image source={require("./ava.png")} style={styles.profileImage} />
-        </View>
+        <Image 
+            source={image ? { uri: image } : require("./ava.png")} 
+            style={styles.profileImage} 
+          />
+            </View>
       </TouchableOpacity>
 
       <View style={styles.inputContainer}>

@@ -3,9 +3,10 @@ import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView 
 import { useNavigation } from '@react-navigation/native';
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from 'expo-image-picker';
 import BottomNavBar from './BottomNavBar';
+import { storage } from "./firebase";
+import { ref ,uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -19,14 +20,16 @@ const ProfileScreen = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [major, setMajor] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserData = async () => {
     try {
       if (user) {
+        setIsLoading(true);
         const firestore = getFirestore();
         const userDocRef = doc(firestore, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
-
+  
         if (userDoc.exists()) {
           const data = userDoc.data();
           setUserData(data);
@@ -36,9 +39,11 @@ const ProfileScreen = () => {
           setMajor(data.major);
           setProfileImageUrl(data.profileImageUrl);
         }
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
+      setIsLoading(false);
     }
   };
 
@@ -51,6 +56,7 @@ const ProfileScreen = () => {
         email: email,
         major: major,
         bio: bio,
+        profileImageUrl: profileImageUrl,
       });
       setIsEditing(false);
       setIsEditingBio(false);
@@ -59,36 +65,49 @@ const ProfileScreen = () => {
   };
 
   const handlePickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const localUri = result.uri;
-      const imageUrl = await uploadImage(localUri);
-      setProfileImageUrl(imageUrl);
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaType: 'photo' });
+    if (result.assets && result.assets.length > 0) {
+      try {
+        const selectedImage = result.assets[0];
+        const response = await fetch(selectedImage.uri);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `profile_images/${selectedImage.fileName}`);
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+  
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Upload is ${progress}% done`);
+          },
+          (error) => {
+            console.error('Error uploading image:', error);
+            alert('Failed to upload Image, Try again');
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              console.log('File available at', downloadURL);
+              setProfileImageUrl(downloadURL);
+              saveUserDetails(user.uid, downloadURL); 
+            });
+          }
+        );
+      } catch (error) {
+        console.error('Error picking image:', error);
+        alert('Failed to upload Image, Try again');
+      }
     }
-  };
-
-  const uploadImage = async (uri) => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const storage = getStorage();
-    const storageRef = ref(storage, `profile_images/${user.uid}.jpg`);
-    await uploadBytes(storageRef, blob);
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
   };
 
   useEffect(() => {
     fetchUserData();
   }, []);
 
-  if (!userData) {
+  if (isLoading) {
     return <Text>Loading...</Text>;
+  }
+  if (!userData) {
+    return <Text>User data not found.</Text>;
   }
 
   return (
@@ -103,7 +122,7 @@ const ProfileScreen = () => {
       </View>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
       
-        <TouchableOpacity onPress={handlePickImage}>
+        <TouchableOpacity onPress={isEditing ? handlePickImage : null}>
         <Image 
           source={profileImageUrl ? { uri: profileImageUrl } : require('./ava.png')} 
           style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]} 
@@ -180,6 +199,7 @@ const ProfileScreen = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

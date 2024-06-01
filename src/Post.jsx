@@ -1,20 +1,27 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { createTeamsMeeting, authenticateApp } from './TeamsAPI';
 
-const Post = ({ id, userName,profileImage, description, estimatedStudyTime, studyTime, studyType, major, onDelete, onEdit, showActions }) => {
-    const [profileImageUrl, setProfileImageUrl] = useState(null);
-
+const Post = ({ id, userName, profileImageUrl, description, estimatedStudyTime, studyTime, studyType, major, onDelete, onEdit, showActions }) => {
+    const handleMeeting = async () => {
+      const url = await createTeamsMeeting();
+      if (url) {
+        Linking.openURL(url);
+      } else {
+        alert('Failed to create Teams meeting');
+      }
+    };
+  
     return (
       <View style={styles.post}>
         <View style={styles.user}>
-        <Image 
-          source={profileImageUrl ? { uri: profileImageUrl } : require('./ava.png')} 
-          style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]} 
-        />
-        <View style={styles.header}>
-          <Text style={styles.postTitle}>{userName}</Text>
+          <Image
+            source={profileImageUrl ? { uri: profileImageUrl } : require('./ava.png')}
+            style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]}
+          />
+          <View style={styles.header}>
+            <Text style={styles.postTitle}>{userName}</Text>
           </View>
           {showActions && (
             <View style={styles.iconContainer}>
@@ -35,8 +42,8 @@ const Post = ({ id, userName,profileImage, description, estimatedStudyTime, stud
         <Text style={styles.postDetails}>Study Type: {studyType}</Text>
         <Text style={styles.postDetails}>Major: {major}</Text>
         <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.joinButton} onPress={() => {/* Handle Join Press */}}>
-                <Text style={styles.joinButtonText}>Join via Zoom</Text>
+          <TouchableOpacity style={styles.joinButton} onPress={handleMeeting}>
+            <Text style={styles.joinButtonText}>Join Meeting</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -73,7 +80,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     flexDirection: 'row',
     gap: 10,
-    left : 150,
+    left : 190,
   },
   postTitle: {
     fontSize: 18,

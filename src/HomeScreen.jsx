@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Image, Text, View, FlatList, TouchableOpacity, Modal, Button, StyleSheet } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,25 +8,25 @@ import Post from './Post';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const [posts, setPosts] = useState([]);
   const [filterCriteria, setFilterCriteria] = useState({
     studyTime: null,
-    studyTime: false,
+    studyType: null,
   });
 
   const fetchPosts = async () => {
     try {
       const firestore = getFirestore();
       let filteredQuery = collection(firestore, 'posts');
-      
+
       if (filterCriteria.studyTime) {
         filteredQuery = query(filteredQuery, where("studyTime", "==", filterCriteria.studyTime));
       }
       if (filterCriteria.studyType) {
         filteredQuery = query(filteredQuery, where("studyType", "==", filterCriteria.studyType));
       }
+
       const querySnapshot = await getDocs(filteredQuery);
       const postsArray = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -43,9 +43,9 @@ const HomeScreen = () => {
   }, [filterCriteria]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       fetchPosts();
-    }, [filterCriteria])
+    }, [])
   );
 
   const handleAddPost = () => {
@@ -59,11 +59,13 @@ const HomeScreen = () => {
   const resetFilter = () => {
     setFilterCriteria({
       studyTime: null,
-      studyTime: false,
+      studyType: null,
     });
   };
+
   const applyFilter = () => {
     setFilterModalVisible(false);
+    fetchPosts();
   };
 
   return (
@@ -87,6 +89,9 @@ const HomeScreen = () => {
         data={posts}
         renderItem={({ item }) => (
           <Post
+            key={item.id}
+            id={item.id}
+            profileImageUrl={item.profileImageUrl}
             userName={item.userName}
             description={item.description}
             estimatedStudyTime={item.estimatedStudyTime}
@@ -126,9 +131,9 @@ const HomeScreen = () => {
               </TouchableOpacity>
             </View>
 
-          {/* Partner or group */}
-          <View style={styles.filterOption}>
-            <Text>Partner or Group :</Text>
+            {/* Partner or group */}
+            <View style={styles.filterOption}>
+              <Text>Partner or Group :</Text>
               <TouchableOpacity
                 style={styles.optionButton}
                 onPress={() => setFilterCriteria({ ...filterCriteria, studyType: 'Partner' })}
@@ -145,13 +150,12 @@ const HomeScreen = () => {
 
             {/* Apply and Reset buttons */}
             <View style={styles.buttonContainer}>
-              <Button style={styles.buttonReset} title="Reset" onPress={resetFilter} />
-              <Button style={styles.buttonApply} title="Apply" onPress={applyFilter} />
+              <Button title="Reset" onPress={resetFilter} />
+              <Button title="Apply" onPress={applyFilter} />
             </View>
           </View>
         </View>
       </Modal>
-
 
       <View style={styles.bottomImageContainer}>
         <Image 
@@ -163,6 +167,7 @@ const HomeScreen = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
