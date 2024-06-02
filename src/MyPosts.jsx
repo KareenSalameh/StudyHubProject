@@ -25,7 +25,6 @@ const MyPosts = ({ navigation }) => {
     }
   }, [user]);
 
-  // Use useFocusEffect to fetch user posts whenever the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       fetchUserPosts();
@@ -63,6 +62,7 @@ const MyPosts = ({ navigation }) => {
           <Post
             key={post.id}
             id={post.id}
+            userId={post.userId}
             userName={post.userName}
             description={post.description}
             estimatedStudyTime={post.estimatedStudyTime}

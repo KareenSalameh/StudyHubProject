@@ -1,6 +1,6 @@
 package com.studyhub.app
+import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 
-import io.invertase.firebase.app.ReactNativeFirebaseAppPackage
 import android.app.Application
 import android.content.res.Configuration
 

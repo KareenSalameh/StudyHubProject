@@ -30,6 +30,7 @@ const HomeScreen = () => {
       const querySnapshot = await getDocs(filteredQuery);
       const postsArray = querySnapshot.docs.map(doc => ({
         id: doc.id,
+        profileImageUrl: doc.data().profileImageUrl, 
         ...doc.data()
       }));
       setPosts(postsArray);
@@ -40,8 +41,9 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchPosts();
+    console.log(posts); // Add this line to debug
   }, [filterCriteria]);
-
+  
   useFocusEffect(
     useCallback(() => {
       fetchPosts();
@@ -88,10 +90,11 @@ const HomeScreen = () => {
       <FlatList
         data={posts}
         renderItem={({ item }) => (
-          <Post
+          <Post 
+            userId={item.userId}
             key={item.id}
             id={item.id}
-            profileImageUrl={item.profileImageUrl}
+            profileImageUrl={item.profileImageUrl} 
             userName={item.userName}
             description={item.description}
             estimatedStudyTime={item.estimatedStudyTime}
