@@ -81,7 +81,7 @@ const MyPosts = ({ navigation }) => {
             key={post.id}
             id={post.id}
             userId={post.userId}
-            userName={post.userName}
+            fullName={post.fullName}
             description={post.description}
             meetingStartTime={post.meetingStartTime}
             estimatedStudyTime={post.estimatedStudyTime}
@@ -91,6 +91,7 @@ const MyPosts = ({ navigation }) => {
             onDelete={() => confirmDelete(post.id)}
             onEdit={handleEdit}
             showActions={true}
+            showActions2 ={false}
           />
         ))}
         </View>

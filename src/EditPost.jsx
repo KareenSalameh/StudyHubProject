@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   updateButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#ba5997',
     paddingVertical: 15,
     borderRadius: 10,
     marginTop: 30,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cancelButton: {
-    backgroundColor: '#FF6347',
+    backgroundColor: '#ba5997',
     paddingVertical: 15,
     borderRadius: 10,
     marginTop: 10,

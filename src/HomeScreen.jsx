@@ -86,6 +86,7 @@ const HomeScreen = () => {
         <TouchableOpacity onPress={handleAddPost} style={styles.AddPostButton}>
           <Ionicons name="add-outline" size={24} color="white" />
         </TouchableOpacity>
+       
       </View>
       <FlatList
         data={posts}
@@ -94,8 +95,8 @@ const HomeScreen = () => {
             userId={item.userId}
             key={item.id}
             id={item.id}
-            profileImageUrl={item.profileImageUrl} 
-            userName={item.userName}
+            profileImageUrl={item.profileImageUrl}
+            fullName={item.fullName}
             description={item.description}
             meetingStartTime={item.meetingStartTime}
             estimatedStudyTime={item.estimatedStudyTime}
@@ -103,6 +104,7 @@ const HomeScreen = () => {
             studyType={item.studyType}
             major={item.major}
             showActions={false}
+            showActions2={true}
           />
         )}
         keyExtractor={(item) => item.id}
@@ -258,6 +260,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
+    backgroundColor: '#ba5997',
   
   },
   bottomImageContainer: {
