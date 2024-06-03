@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { getFirestore, collection, query, where, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
+import { useFocusEffect } from '@react-navigation/native';
 import Post from './Post';
 import BottomNavBar from './BottomNavBar';
 
@@ -30,6 +30,24 @@ const MyPosts = ({ navigation }) => {
       fetchUserPosts();
     }, [fetchUserPosts])
   );
+
+  const confirmDelete = (id) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this post?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "OK",
+          onPress: () => handleDelete(id)
+        }
+      ],
+      { cancelable: true }
+    );
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -65,11 +83,12 @@ const MyPosts = ({ navigation }) => {
             userId={post.userId}
             userName={post.userName}
             description={post.description}
+            meetingStartTime={post.meetingStartTime}
             estimatedStudyTime={post.estimatedStudyTime}
             studyTime={post.studyTime}
             studyType={post.studyType}
             major={post.major}
-            onDelete={handleDelete}
+            onDelete={() => confirmDelete(post.id)}
             onEdit={handleEdit}
             showActions={true}
           />
@@ -117,8 +136,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     alignItems: 'center',
     paddingHorizontal: 50,
-    paddingBottom: 100, 
-
+    paddingBottom: 100,
   },
   heading: {
     fontSize: 28,
@@ -126,9 +144,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: -10,
   },
-    postContainer: {
+  postContainer: {
     width: "120%",
-    },
+  },
   bottomImageContainer: {
     alignItems: 'center',
     height: 90,
@@ -140,7 +158,6 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 100,
   },
-  
 });
 
 export default MyPosts;

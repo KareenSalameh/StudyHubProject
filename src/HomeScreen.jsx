@@ -41,7 +41,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchPosts();
-    console.log(posts); // Add this line to debug
+    console.log(posts);
   }, [filterCriteria]);
   
   useFocusEffect(
@@ -97,6 +97,7 @@ const HomeScreen = () => {
             profileImageUrl={item.profileImageUrl} 
             userName={item.userName}
             description={item.description}
+            meetingStartTime={item.meetingStartTime}
             estimatedStudyTime={item.estimatedStudyTime}
             studyTime={item.studyTime}
             studyType={item.studyType}
@@ -117,7 +118,6 @@ const HomeScreen = () => {
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Filter Options</Text>
 
-            {/* Study Time */}
             <View style={styles.filterOption}>
               <Text>Study Time:</Text>
               <TouchableOpacity
@@ -134,7 +134,6 @@ const HomeScreen = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Partner or group */}
             <View style={styles.filterOption}>
               <Text>Partner or Group :</Text>
               <TouchableOpacity
@@ -151,7 +150,6 @@ const HomeScreen = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Apply and Reset buttons */}
             <View style={styles.buttonContainer}>
               <Button title="Reset" onPress={resetFilter} />
               <Button title="Apply" onPress={applyFilter} />
