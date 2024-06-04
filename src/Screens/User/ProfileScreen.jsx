@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
-import * as ImagePicker from 'expo-image-picker';
-import BottomNavBar from './BottomNavBar';
-import { storage } from "./firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import BottomNavBar from '../BottomNavBar';
+import { fetchUserData } from '../../Logic/fetchUserData';
+import { handleUpdate, handlePickImage, handleDeleteImage } from '../../Logic/EditProfile';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -22,16 +20,12 @@ const ProfileScreen = () => {
   const [major, setMajor] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserData = async () => {
-    try {
-      if (user) {
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
         setIsLoading(true);
-        const firestore = getFirestore();
-        const userDocRef = doc(firestore, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-          const data = userDoc.data();
+        const data = await fetchUserData(user);
+        if (data) {
           setUserData(data);
           setBio(data.bio || "");
           setName(data.fullName);
@@ -40,80 +34,43 @@ const ProfileScreen = () => {
           setProfileImageUrl(data.profileImageUrl);
         }
         setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      setIsLoading(false);
-    }
-  };
+    };
 
-  const handleUpdate = async () => {
-    if (user) {
-      const firestore = getFirestore();
-      const userDocRef = doc(firestore, "users", user.uid);
-      await updateDoc(userDocRef, {
-        fullName: name,
-        email: email,
-        major: major,
-        bio: bio,
-        profileImageUrl: profileImageUrl,
-      });
+    loadUserData();
+  }, [user]);
+
+  const handleUpdateProfile = async () => {
+    try {
+      const message = await handleUpdate(user, name, email, major, bio, profileImageUrl);
+      alert(message);
       setIsEditing(false);
       setIsEditingBio(false);
-      alert("Profile updated successfully!");
+    } catch (error) {
+      alert('Error updating profile. Please try again.');
     }
   };
 
-  const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaType: 'photo' });
-    if (result.assets && result.assets.length > 0) {
-      try {
-        const selectedImage = result.assets[0];
-        const response = await fetch(selectedImage.uri);
-        const blob = await response.blob();
-        const storageRef = ref(storage, `profile_images/${selectedImage.fileName}`);
-        const uploadTask = uploadBytesResumable(storageRef, blob);
-
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-          },
-          (error) => {
-            console.error('Error uploading image:', error);
-            alert('Failed to upload Image, Try again');
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              console.log('File available at', downloadURL);
-              setProfileImageUrl(downloadURL);
-              saveUserDetails(user.uid, downloadURL); 
-            });
-          }
-        );
-      } catch (error) {
-        console.error('Error picking image:', error);
-        alert('Failed to upload Image, Try again');
-      }
+  const handleImagePick = async () => {
+    try {
+      await handlePickImage(user, setProfileImageUrl);
+    } catch (error) {
+      alert('Error picking image. Please try again.');
     }
   };
 
-  const handleDeleteImage = async () => {
-    setProfileImageUrl(null);
-    if (user) {
-      const firestore = getFirestore();
-      const userDocRef = doc(firestore, "users", user.uid);
-      await updateDoc(userDocRef, {
-        profileImageUrl: null,
-      });
-      alert("Profile image deleted successfully!");
+  const handleImageDelete = async () => {
+    try {
+      const message = await handleDeleteImage(user);
+      alert(message);
+      setProfileImageUrl(null);
+    } catch (error) {
+      alert('Error deleting image. Please try again.');
     }
   };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
 
   if (isLoading) {
     return <Text>Loading...</Text>;
@@ -126,22 +83,22 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       <View style={styles.topImageContainer}>
         <Image 
-          source={require("./pics/topVector.png")}
+          source={require("../../../assets/pics/topVector.png")}
           style={styles.topImage}
         />
         <Text style={styles.headerTitle}>Study</Text>
         <Text style={styles.headerTitle2}>Hub</Text>
       </View>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <TouchableOpacity onPress={isEditing ? handlePickImage : null}>
+        <TouchableOpacity onPress={isEditing ? handleImagePick : null}>
           <Image 
-            source={profileImageUrl ? { uri: profileImageUrl } : require('./ava.png')} 
+            source={profileImageUrl ? { uri: profileImageUrl } : require('../../../assets/pics/ava.png')} 
             style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]} 
           />
         </TouchableOpacity>
 
         {isEditing && (
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteImage}>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleImageDelete}>
             <Text style={styles.deleteButtonText}>Delete Photo</Text>
           </TouchableOpacity>
         )}
@@ -192,7 +149,7 @@ const ProfileScreen = () => {
         </TouchableOpacity>
         
         {isEditing && (
-          <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
+          <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile}>
             <Text style={styles.updateButtonText}>Update Profile</Text>
           </TouchableOpacity>
         )}
@@ -202,14 +159,14 @@ const ProfileScreen = () => {
         </TouchableOpacity>
 
         {isEditingBio && (
-          <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
+          <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile}>
             <Text style={styles.updateButtonText}>Update Bio</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
 
       <View style={styles.bottomImageContainer}>
-        <Image source={require("./pics/topVector.png")} style={styles.topImage2} />
+        <Image source={require("../../../assets/pics/topVector.png")} style={styles.topImage2} />
         <BottomNavBar navigation={navigation} />
       </View>
     </View>

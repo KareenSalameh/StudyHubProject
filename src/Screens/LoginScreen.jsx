@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from './firebase'; // Import your Firebase auth instance
-import { loginWithEmailAndPassword } from "./firebase";
-
+import { auth } from '../firebase'; // Import your Firebase auth instance
+import { loginWithEmailAndPassword } from "../firebase";
 
 const LoginScreen = () => {
     const navigation = useNavigation();
@@ -34,7 +33,7 @@ const LoginScreen = () => {
     <View style={styles.container}>
       <View style={styles.topImageContainer}>
         <Image 
-          source={require("./pics/topVector.png")}
+          source={require("../../assets/pics/topVector.png")}
           style={styles.topImage}
         />
       </View>
@@ -68,7 +67,7 @@ const LoginScreen = () => {
       </TouchableOpacity>
       <View style={styles.leftVectorContainer}>
         <ImageBackground source=
-            {require("./pics/v.jpg")} style={styles.leftVectorImg}/>
+            {require("../../assets/pics/v.jpg")} style={styles.leftVectorImg}/>
 
       </View>
     </View>

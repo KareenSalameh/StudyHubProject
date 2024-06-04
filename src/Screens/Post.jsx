@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import {getLearningQuote} from './api'
+import {getLearningQuote} from '../API/api'
 const Post = ({ userId, id, description,meetingStartTime, estimatedStudyTime, studyTime, studyType, major, onDelete, onEdit, showActions,showActions2 }) => {
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [fullName, setUsername] = useState(null);
@@ -68,7 +68,7 @@ const Post = ({ userId, id, description,meetingStartTime, estimatedStudyTime, st
     <View style={styles.post}>
       <View style={styles.user}>
       <Image
-            source={profileImageUrl ? { uri: profileImageUrl } : require('./ava.png')}
+            source={profileImageUrl ? { uri: profileImageUrl } : require(('../../assets/pics/ava.png'))}
             style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]}
             />
 
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 15,
     height: 'auto', 
-    width: 300, 
+    width: 240, 
     textAlign: 'center', 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

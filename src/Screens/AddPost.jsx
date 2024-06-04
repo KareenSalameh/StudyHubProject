@@ -7,7 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Ionicons } from '@expo/vector-icons';
 
-const AddPost = () => {
+const AddPost = React.memo(() => {
   const [description, setDescription] = useState('');
   const [estimatedStudyTime, setEstimatedStudyTime] = useState('');
   const [studyTime, setStudyTime] = useState('Day');
@@ -46,9 +46,9 @@ const AddPost = () => {
       return;
     }
     if (!selectedDate) {
-        Alert.alert('Error', 'Please select a meeting date and time');
-        return;
-      }
+      Alert.alert('Error', 'Please select a meeting date and time');
+      return;
+    }
     try {
       const firestore = getFirestore();
       await addDoc(collection(firestore, 'posts'), {
@@ -82,7 +82,6 @@ const AddPost = () => {
     setSelectedDate(date.toISOString()); // Convert date to ISO string format
     hideDatePicker();
   };
-  
 
   return (
     <View style={styles.container}>
@@ -134,8 +133,7 @@ const AddPost = () => {
         <Text>
             <Text style={styles.datePickerButtonText}>Select Meeting Date and Time</Text>
         </Text>
-        </TouchableOpacity>
-
+      </TouchableOpacity>
       <TouchableOpacity style={styles.publishButton} onPress={handlePublish}>
         <Text style={styles.publishButtonText}>Post</Text>
       </TouchableOpacity>
@@ -150,7 +148,7 @@ const AddPost = () => {
       />
     </View>
   );
-};
+});
 
 export default AddPost;
 

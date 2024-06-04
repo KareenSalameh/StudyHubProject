@@ -4,15 +4,15 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginScreen from './src/LoginScreen';
-import SignupScreen from './src/SignupScreen'; 
+import LoginScreen from './src/Screens/LoginScreen';
+import SignupScreen from './src/Screens/SignupScreen'; 
 import { useFonts } from 'expo-font';
 import { FontAwesome } from '@expo/vector-icons';
-import HomeScreen from './src/HomeScreen';
-import ProfileScreen from './src/ProfileScreen';
-import AddPost from './src/AddPost';
-import MyPosts from './src/MyPosts';
-import EditPost from './src/EditPost';
+import HomeScreen from './src/Screens/HomeScreen';
+import ProfileScreen from './src/Screens/User/ProfileScreen';
+import AddPost from './src/Screens/AddPost';
+import MyPosts from './src/Screens/MyPosts';
+import EditPost from './src/Screens/EditPost';
 
 const Stack = createNativeStackNavigator();
 

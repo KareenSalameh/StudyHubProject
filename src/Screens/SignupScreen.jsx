@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import { View, Image, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { auth, storage } from './firebase';
-import { getFirestore, doc, setDoc } from "firebase/firestore";
-import * as ImagePicker from 'expo-image-picker';
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { handlePickImage } from '../Logic/PhotoUpload';
+import { handleSignUp } from '../Logic/Auth';
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
@@ -17,92 +14,18 @@ const SignUpScreen = () => {
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
 
-  const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaType: 'photo' });
-    if (result.assets && result.assets.length > 0) {
-      const selectedImage = result.assets[0];
-      setImage(selectedImage.uri);
-    }
+  const onPickImage = async () => {
+    const pickedImage = await handlePickImage();
+    if (pickedImage) setImage(pickedImage);
   };
 
-  const uploadImage = async (uri) => {
-    setUploading(true);
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const fileName = uri.split('/').pop();
-      const storageRef = ref(storage, `profile_images/${fileName}`);
-      const uploadTask = uploadBytesResumable(storageRef, blob);
-
-      return new Promise((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-          },
-          (error) => {
-            console.error('Error uploading image:', error);
-            setUploading(false);
-            reject(error);
-          },
-          async () => {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            console.log('File available at', downloadURL);
-            setUploading(false);
-            resolve(downloadURL);
-          }
-        );
-      });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      setUploading(false);
-      throw error;
-    }
-  };
-
-  const handleSignUp = async () => {
-    if (!fullName || !email || !password || !major) {
-      alert("Please fill in all fields before signing up");
-      return;
-    }
-
-    try {
-      let profileImageUrl = null;
-
-      if (image) {
-        profileImageUrl = await uploadImage(image);
-      }
-
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      await saveUserDetails(user.uid, profileImageUrl);
-      console.log("UserDetails:", user);
-
-      navigation.navigate("Login");
-    } catch (error) {
-      console.log("Error signing up:", error);
-      alert("An error occurred while signing up. Please try again.");
-    }
-
+  const onSignUp = async () => {
+    await handleSignUp(fullName, email, password, major, image, setUploading, navigation);
     setFullName("");
     setEmail("");
     setPassword("");
     setMajor("");
     setImage(null);
-  };
-
-  const saveUserDetails = async (userId, profileImageUrl) => {
-    const db = getFirestore();
-    const userRef = doc(db, "users", userId);
-    await setDoc(userRef, {
-      fullName: fullName,
-      email: email,
-      major: major,
-      profileImageUrl: profileImageUrl || null,
-    });
-    console.log("User data saved successfully!");
   };
 
   const handleLogin = () => {
@@ -113,18 +36,18 @@ const SignUpScreen = () => {
     <View style={styles.container}>
       <View style={styles.topImageContainer}>
         <Image 
-          source={require("./pics/topVector.png")}
+          source={require("../../assets/pics/topVector.png")}
           style={styles.topImage}
         />
       </View>
       <View style={styles.helloContainer}>
         <Text style={styles.welcomeText}>StudyHub</Text>
       </View>
-      <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+      <TouchableOpacity style={styles.imagePicker} onPress={onPickImage}>
         <Text style={styles.imagePickerText}>Pick a new Image</Text>
         <View style={styles.imagePreviewContainer}>
           <Image 
-            source={image ? { uri: image } : require("./ava.png")} 
+            source={image ? { uri: image } : require('../../assets/pics/ava.png')} 
             style={styles.profileImage} 
           />
         </View>
@@ -150,7 +73,7 @@ const SignUpScreen = () => {
         <TextInput style={styles.textInput} placeholder="Password" secureTextEntry value={password}
           onChangeText={setPassword}/>
       </View>
-      <TouchableOpacity style={styles.signInButtonContainer} onPress={handleSignUp} disabled={uploading}>
+      <TouchableOpacity style={styles.signInButtonContainer} onPress={onSignUp} disabled={uploading}>
         <Text style={styles.signInText2}>{uploading ? "Signing Up..." : "Sign Up"}</Text>
         <View style={styles.arrowContainer}>
           <AntDesign name={"arrowright"} style={styles.RowButton} />
@@ -162,7 +85,7 @@ const SignUpScreen = () => {
         </Text>
       </TouchableOpacity>
       <View style={styles.leftVectorContainer}>
-        <Image source={require("./pics/v.jpg")} style={styles.leftVectorImg}/>
+        <Image source={require("../../assets/pics/v.jpg")} style={styles.leftVectorImg}/>
       </View>
     </View>
   );

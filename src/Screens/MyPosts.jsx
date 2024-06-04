@@ -67,7 +67,7 @@ const MyPosts = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.topImageContainer}>
         <Image 
-          source={require("./pics/topVector.png")}
+          source={require("../../assets/pics/topVector.png")}
           style={styles.topImage}
         />
         <Text style={styles.headerTitle}>Study</Text>
@@ -97,7 +97,7 @@ const MyPosts = ({ navigation }) => {
         </View>
       </ScrollView>
       <View style={styles.bottomImageContainer}>
-        <Image source={require("./pics/topVector.png")} style={styles.topImage2} />
+        <Image source={require("../../assets/pics/topVector.png")} style={styles.topImage2} />
         <BottomNavBar navigation={navigation} />
       </View>
     </View>
