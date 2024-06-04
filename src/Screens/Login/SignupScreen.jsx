@@ -36,7 +36,7 @@ const SignUpScreen = () => {
     <View style={styles.container}>
       <View style={styles.topImageContainer}>
         <Image 
-          source={require("../../assets/pics/topVector.png")}
+          source={require("../../../assets/pics/topVector.png")}
           style={styles.topImage}
         />
       </View>
@@ -47,7 +47,7 @@ const SignUpScreen = () => {
         <Text style={styles.imagePickerText}>Pick a new Image</Text>
         <View style={styles.imagePreviewContainer}>
           <Image 
-            source={image ? { uri: image } : require('../../assets/pics/ava.png')} 
+            source={image ? { uri: image } : require('../../../assets/pics/ava.png')} 
             style={styles.profileImage} 
           />
         </View>
@@ -85,7 +85,7 @@ const SignUpScreen = () => {
         </Text>
       </TouchableOpacity>
       <View style={styles.leftVectorContainer}>
-        <Image source={require("../../assets/pics/v.jpg")} style={styles.leftVectorImg}/>
+        <Image source={require("../../../assets/pics/v.jpg")} style={styles.leftVectorImg}/>
       </View>
     </View>
   );

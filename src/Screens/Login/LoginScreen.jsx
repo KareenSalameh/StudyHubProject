@@ -33,7 +33,7 @@ const LoginScreen = () => {
     <View style={styles.container}>
       <View style={styles.topImageContainer}>
         <Image 
-          source={require("../../assets/pics/topVector.png")}
+          source={require("../../../assets/pics/topVector.png")}
           style={styles.topImage}
         />
       </View>
@@ -67,7 +67,7 @@ const LoginScreen = () => {
       </TouchableOpacity>
       <View style={styles.leftVectorContainer}>
         <ImageBackground source=
-            {require("../../assets/pics/v.jpg")} style={styles.leftVectorImg}/>
+            {require("../../../assets/pics/v.jpg")} style={styles.leftVectorImg}/>
 
       </View>
     </View>

@@ -1,6 +1,6 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-API/api.js
+src/API/api.js
 
 # Ignore Firebase JSX file
 src/firebase.jsx

@@ -16,7 +16,7 @@ const Post = ({ userId, id, description, meetingStartTime, estimatedStudyTime, s
     <View style={styles.post}>
       <View style={styles.user}>
         <Image
-          source={profileImageUrl ? { uri: profileImageUrl } : require(('../../assets/pics/ava.png'))}
+          source={profileImageUrl ? { uri: profileImageUrl } : require(('../../../assets/pics/ava.png'))}
           style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]}
         />
         <View style={styles.header}>
