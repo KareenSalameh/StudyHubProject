@@ -1,96 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import {getLearningQuote} from '../API/api'
-const Post = ({ userId, id, description,meetingStartTime, estimatedStudyTime, studyTime, studyType, major, onDelete, onEdit, showActions,showActions2 }) => {
+import { fetchUserData, handleMeeting, formatMeetingTime, handleQuotePress, handleClosePress } from '../../Logic/PostLogic';
+
+const Post = ({ userId, id, description, meetingStartTime, estimatedStudyTime, studyTime, studyType, major, onDelete, onEdit, showActions, showActions2 }) => {
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [fullName, setUsername] = useState(null);
-
   const [quote, setQuote] = useState('');
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const firestore = getFirestore();
-        const userDocRef = doc(firestore, "users", userId);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setProfileImageUrl(data.profileImageUrl);
-          setUsername(data.fullName);
-        }
-      } catch (error) {
-        console.error("Error fetching user photo:", error);
-      }
-    };
-
-    fetchUserData();
+    fetchUserData(userId, setProfileImageUrl, setUsername);
   }, [userId]);
-
-
-  useEffect(() => {
-  }, [meetingStartTime]);
-
-  const handleMeeting = async () => {
-    const meetingId = '836 905 6609';
-    const zoomMeetingLink = `https://zoom.us/j/${meetingId.replace(/\s/g, '')}`;
-    // Open the Zoom meeting link
-    Linking.openURL(zoomMeetingLink).catch((err) =>
-      console.error('Error opening Zoom meeting:', err)
-    );
-  };
-  const formatMeetingTime = (time) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(time).toLocaleString(undefined, options);
-  };
-
-  const handleQuotePress = async () => {
-    try {
-      const fetchedQuote = await getLearningQuote();
-      if (fetchedQuote) {
-        setQuote(fetchedQuote);
-      } else {
-        setQuote('Failed to fetch learning quote.');
-      }
-    } catch (error) {
-      console.error('Error fetching learning quote:', error);
-      setQuote('Failed to fetch learning quote.');
-    }
-  };
-  
-  const handleClosePress = () => {
-    setQuote('');
-  };
 
   return (
     <View style={styles.post}>
       <View style={styles.user}>
-      <Image
-            source={profileImageUrl ? { uri: profileImageUrl } : require(('../../assets/pics/ava.png'))}
-            style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]}
-            />
-
+        <Image
+          source={profileImageUrl ? { uri: profileImageUrl } : require(('../../assets/pics/ava.png'))}
+          style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]}
+        />
         <View style={styles.header}>
           <Text style={styles.postTitle}>{fullName}</Text>
         </View>
         {showActions2 && (
-        <TouchableOpacity style={styles.EmojiButton} onPress={handleQuotePress}>
-          <Ionicons name="mail-unread-outline" size={28} color="black" />
-        </TouchableOpacity>
-         )}
-         
-         {quote !== '' && (
-            <View>
+          <TouchableOpacity style={styles.EmojiButton} onPress={() => handleQuotePress(setQuote)}>
+            <Ionicons name="mail-unread-outline" size={28} color="black" />
+          </TouchableOpacity>
+        )}
+        {quote !== '' && (
+          <View>
             <View style={styles.solidBackground} />
             <View style={styles.quoteTextContainer}>
-                <TouchableOpacity onPress={handleClosePress} style={styles.closeIcon}>
+              <TouchableOpacity onPress={() => handleClosePress(setQuote)} style={styles.closeIcon}>
                 <Ionicons name="close" size={24} color="#fff" />
-                </TouchableOpacity>
-                <Text style={styles.quoteText}>{quote}</Text>
+              </TouchableOpacity>
+              <Text style={styles.quoteText}>{quote}</Text>
             </View>
-            </View>
+          </View>
         )}
         {showActions && (
           <View style={styles.iconContainer}>
@@ -106,17 +52,15 @@ const Post = ({ userId, id, description,meetingStartTime, estimatedStudyTime, st
       <View style={styles.descriptionContainer}>
         <Text style={styles.postDescription}>{description}</Text>
       </View>
-
-       <View style={styles.rowContainer}>
-       <Text style={styles.postDetails}>
-        <Text style={styles.postHeader}>Meeting Date: </Text>
-        <Text style={styles.postValue}>{meetingStartTime ? formatMeetingTime(meetingStartTime) : 'Attending Now'}</Text>
+      <View style={styles.rowContainer}>
+        <Text style={styles.postDetails}>
+          <Text style={styles.postHeader}>Meeting Date: </Text>
+          <Text style={styles.postValue}>{meetingStartTime ? formatMeetingTime(meetingStartTime) : 'Attending Now'}</Text>
         </Text>
         <TouchableOpacity style={styles.IconCalendar}>
-            <Ionicons name="calendar-outline" size={25} color="black" />
+          <Ionicons name="calendar-outline" size={25} color="black" />
         </TouchableOpacity>
-        </View>
-
+      </View>
       <Text style={styles.postDetails}>
         <Text style={styles.postHeader}>Estimated Study Time: </Text>
         {estimatedStudyTime} hours

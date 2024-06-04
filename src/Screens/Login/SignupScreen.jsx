@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Image, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { handlePickImage } from '../Logic/PhotoUpload';
-import { handleSignUp } from '../Logic/Auth';
+import { handlePickImage } from '../../Logic/PhotoUpload';
+import { handleSignUp } from '../../Logic/Auth';
 
 const SignUpScreen = () => {
   const navigation = useNavigation();

@@ -2,72 +2,28 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Image, Text, View, FlatList, TouchableOpacity, Modal, Button, StyleSheet } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
 import BottomNavBar from './BottomNavBar';
-import Post from './Post';
+import Post from './Post/Post';
+import { fetchPosts, toggleFilterModal, resetFilter, applyFilter } from '../Logic/homeScreenLogic';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const [posts, setPosts] = useState([]);
-  const [filterCriteria, setFilterCriteria] = useState({
-    studyTime: null,
-    studyType: null,
-  });
-
-  const fetchPosts = async () => {
-    try {
-      const firestore = getFirestore();
-      let filteredQuery = collection(firestore, 'posts');
-
-      if (filterCriteria.studyTime) {
-        filteredQuery = query(filteredQuery, where("studyTime", "==", filterCriteria.studyTime));
-      }
-      if (filterCriteria.studyType) {
-        filteredQuery = query(filteredQuery, where("studyType", "==", filterCriteria.studyType));
-      }
-
-      const querySnapshot = await getDocs(filteredQuery);
-      const postsArray = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        profileImageUrl: doc.data().profileImageUrl, 
-        ...doc.data()
-      }));
-      setPosts(postsArray);
-    } catch (error) {
-      console.error("Error fetching posts: ", error);
-    }
-  };
+  const [filterCriteria, setFilterCriteria] = useState({studyTime: null,studyType: null,});
 
   useEffect(() => {
-    fetchPosts();
-    console.log(posts);
+    fetchPosts(filterCriteria, setPosts);
   }, [filterCriteria]);
-  
+
   useFocusEffect(
     useCallback(() => {
-      fetchPosts();
-    }, [])
+      fetchPosts(filterCriteria, setPosts);
+    }, [filterCriteria])
   );
 
   const handleAddPost = () => {
     navigation.navigate("AddPost");
-  };
-
-  const toggleFilterModal = () => {
-    setFilterModalVisible(!isFilterModalVisible);
-  };
-
-  const resetFilter = () => {
-    setFilterCriteria({
-      studyTime: null,
-      studyType: null,
-    });
-  };
-
-  const applyFilter = () => {
-    setFilterModalVisible(false);
-    fetchPosts();
   };
 
   return (
@@ -80,7 +36,7 @@ const HomeScreen = () => {
         <Text style={styles.headerTitle}>Study</Text>
         <Text style={styles.headerTitle2}>Hub</Text>
 
-        <TouchableOpacity onPress={toggleFilterModal} style={styles.filterButton}>
+        <TouchableOpacity onPress={() => toggleFilterModal(isFilterModalVisible, setFilterModalVisible)} style={styles.filterButton}>
           <Ionicons name="filter-outline" size={24} color="white" />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleAddPost} style={styles.AddPostButton}>
@@ -114,7 +70,7 @@ const HomeScreen = () => {
         transparent={true}
         animationType="slide"
         visible={isFilterModalVisible}
-        onRequestClose={toggleFilterModal}
+        onRequestClose={() => toggleFilterModal(isFilterModalVisible, setFilterModalVisible)}
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
@@ -153,8 +109,8 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.buttonContainer}>
-              <Button title="Reset" onPress={resetFilter} />
-              <Button title="Apply" onPress={applyFilter} />
+              <Button title="Reset" onPress={() => resetFilter(setFilterCriteria)} />
+              <Button title="Apply" onPress={() => applyFilter(setFilterModalVisible, () => fetchPosts(filterCriteria, setPosts))} />
             </View>
           </View>
         </View>

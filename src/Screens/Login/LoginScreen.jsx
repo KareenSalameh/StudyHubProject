@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { FontAwesome, AntDesign } from 'react-native-vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from '../firebase'; // Import your Firebase auth instance
-import { loginWithEmailAndPassword } from "../firebase";
+import { auth } from '../../firebase'; // Import your Firebase auth instance
+import { loginWithEmailAndPassword } from "../../firebase";
 
 const LoginScreen = () => {
     const navigation = useNavigation();

@@ -4,7 +4,7 @@ import { getFirestore, collection, query, where, getDocs, doc, deleteDoc } from 
 import { getAuth } from "firebase/auth";
 import { useFocusEffect } from '@react-navigation/native';
 import Post from './Post';
-import BottomNavBar from './BottomNavBar';
+import BottomNavBar from '../BottomNavBar';
 
 const MyPosts = ({ navigation }) => {
   const [userPosts, setUserPosts] = useState([]);

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { getAuth } from "firebase/auth";
-import { getFirestore, collection, addDoc, doc, getDoc } from "firebase/firestore";
 import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Ionicons } from '@expo/vector-icons';
+import { getAuth } from "firebase/auth";
+import { fetchFullName, handlePublish, showDatePicker, hideDatePicker, handleConfirmDate } from '../../Logic/addPostLogic';
 
-const AddPost = React.memo(() => {
+const AddPost = () => {
   const [description, setDescription] = useState('');
   const [estimatedStudyTime, setEstimatedStudyTime] = useState('');
   const [studyTime, setStudyTime] = useState('Day');
@@ -22,66 +22,8 @@ const AddPost = React.memo(() => {
   const user = auth.currentUser;
 
   useEffect(() => {
-    async function fetchFullName() {
-      try {
-        if (user) {
-          const firestore = getFirestore();
-          const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setFullName(userData.fullName);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching user's full name:", error);
-      }
-    }
-
-    fetchFullName();
+    fetchFullName(user, setFullName);
   }, [user]);
-
-  const handlePublish = async () => {
-    if (!user) {
-      Alert.alert('Error', 'No user is logged in');
-      return;
-    }
-    if (!selectedDate) {
-      Alert.alert('Error', 'Please select a meeting date and time');
-      return;
-    }
-    try {
-      const firestore = getFirestore();
-      await addDoc(collection(firestore, 'posts'), {
-        userId: user.uid,
-        userName: fullName,
-        description: description,
-        estimatedStudyTime: estimatedStudyTime,
-        studyTime: studyTime,
-        studyType: studyType,
-        major: major,
-        meetingStartTime: selectedDate, // Include the selected date and time
-        createdAt: new Date(),
-      });
-      Alert.alert('Success', 'Post published successfully!');
-      navigation.navigate('Home');
-    } catch (error) {
-      Alert.alert('Error', 'Something went wrong while publishing the post');
-      console.error(error);
-    }
-  };
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirmDate = (date) => {
-    setSelectedDate(date.toISOString()); // Convert date to ISO string format
-    hideDatePicker();
-  };
 
   return (
     <View style={styles.container}>
@@ -128,13 +70,13 @@ const AddPost = React.memo(() => {
         value={major}
         onChangeText={setMajor}
       />
-      <TouchableOpacity style={styles.datePickerButton} onPress={showDatePicker}>
+      <TouchableOpacity style={styles.datePickerButton} onPress={() => showDatePicker(setDatePickerVisibility)}>
         <Ionicons name="calendar-outline" size={24} color="black" />
         <Text>
             <Text style={styles.datePickerButtonText}>Select Meeting Date and Time</Text>
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.publishButton} onPress={handlePublish}>
+      <TouchableOpacity style={styles.publishButton} onPress={() => handlePublish(user, fullName, description, estimatedStudyTime, studyTime, studyType, major, selectedDate, navigation)}>
         <Text style={styles.publishButtonText}>Post</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
@@ -143,12 +85,12 @@ const AddPost = React.memo(() => {
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="datetime"
-        onConfirm={handleConfirmDate}
-        onCancel={hideDatePicker}
+        onConfirm={(date) => handleConfirmDate(date, setSelectedDate, () => hideDatePicker(setDatePickerVisibility))}
+        onCancel={() => hideDatePicker(setDatePickerVisibility)}
       />
     </View>
   );
-});
+};
 
 export default AddPost;
 
