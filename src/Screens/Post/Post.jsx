@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchUserData, handleMeeting, formatMeetingTime, handleQuotePress, handleClosePress } from '../../Logic/PostLogic';
+import { getAuth } from "firebase/auth";
 
 const Post = ({ userId, id, description, meetingStartTime, estimatedStudyTime, studyTime, studyType, major, onDelete, onEdit, showActions, showActions2 }) => {
-  const [profileImageUrl, setProfileImageUrl] = useState(null);
-  const [fullName, setUsername] = useState(null);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const [profileImageUrl, setProfileImageUrl] = useState(user.profileImageUrl);
+  const [fullName, setUsername] = useState(user.fullName);
   const [quote, setQuote] = useState('');
   const [commentsVisible, setCommentsVisible] = useState(false);
   const [comments, setComments] = useState([]);
@@ -17,10 +20,16 @@ const Post = ({ userId, id, description, meetingStartTime, estimatedStudyTime, s
 
   const handleAddComment = () => {
     if (newComment.trim()) {
-      setComments([...comments, newComment]);
+      const newCommentObj = {
+        profileImageUrl: profileImageUrl,
+        fullName: fullName,
+        comment: newComment
+      };
+      setComments([...comments, newCommentObj]);
       setNewComment('');
     }
   };
+  
 
   return (
     <View style={styles.post}>
