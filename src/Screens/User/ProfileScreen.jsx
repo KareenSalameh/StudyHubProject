@@ -5,6 +5,7 @@ import { getAuth } from "firebase/auth";
 import BottomNavBar from '../BottomNavBar';
 import { fetchUserData } from '../../Logic/fetchUserData';
 import { handleUpdate, handlePickImage, handleDeleteImage } from '../../Logic/EditProfile';
+import { UserProvider, useUser } from '../../UserContext'; // Import the UserProvider and useUser
 
 const ProfileScreen = () => {
   const navigation = useNavigation();

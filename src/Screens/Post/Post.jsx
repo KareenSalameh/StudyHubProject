@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchUserData, handleMeeting, formatMeetingTime, handleQuotePress, handleClosePress } from '../../Logic/PostLogic';
 
@@ -7,16 +7,26 @@ const Post = ({ userId, id, description, meetingStartTime, estimatedStudyTime, s
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [fullName, setUsername] = useState(null);
   const [quote, setQuote] = useState('');
+  const [commentsVisible, setCommentsVisible] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     fetchUserData(userId, setProfileImageUrl, setUsername);
   }, [userId]);
 
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      setComments([...comments, newComment]);
+      setNewComment('');
+    }
+  };
+
   return (
     <View style={styles.post}>
       <View style={styles.user}>
         <Image
-          source={profileImageUrl ? { uri: profileImageUrl } : require(('../../../assets/pics/ava.png'))}
+          source={profileImageUrl ? { uri: profileImageUrl } : require('../../../assets/pics/ava.png')}
           style={[styles.profileImage, profileImageUrl ? {} : styles.defaultProfileImage]}
         />
         <View style={styles.header}>
@@ -81,6 +91,42 @@ const Post = ({ userId, id, description, meetingStartTime, estimatedStudyTime, s
         <TouchableOpacity style={styles.joinButton} onPress={handleMeeting}>
           <Text style={styles.joinButtonText}>Join Meeting</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.commentsContainer}>
+        <TouchableOpacity onPress={() => setCommentsVisible(!commentsVisible)} style={styles.commentIcon}>
+          <Ionicons name="chatbubble-outline" size={24} color="black" />
+        </TouchableOpacity>
+        {commentsVisible && (
+  <View style={styles.commentsSection}>
+    <FlatList
+      data={comments}
+      renderItem={({ item }) => (
+        <View style={styles.commentItem}>
+          <Image
+            source={item.profileImageUrl ? { uri: item.profileImageUrl } : require('../../../assets/pics/ava.png')}
+            style={[styles.commentProfileImage, item.profileImageUrl ? {} : styles.defaultProfileImage]}
+          />
+          <View style={styles.commentContent}>
+            <Text style={styles.commentFullName}>{item.fullName}</Text>
+            <Text style={styles.commentText}>{item.comment}</Text>
+          </View>
+                </View>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
+            <View style={styles.addCommentContainer}>
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Add a comment..."
+                value={newComment}
+                onChangeText={setNewComment}
+              />
+              <TouchableOpacity onPress={handleAddComment} style={styles.addCommentButton}>
+                <Ionicons name="send-outline" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -164,10 +210,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     left: 10,
   },
-  EmojiButton:{
-    position:'absolute',
+  EmojiButton: {
+    position: 'absolute',
     left: 320,
-    top:-5,
+    top: -5,
   },
   descriptionContainer: {
     borderWidth: 1,
@@ -196,8 +242,8 @@ const styles = StyleSheet.create({
   postValue: {
     flex: 1,
   },
-  IconCalendar:{
-
+  IconCalendar: {
+    marginLeft: 10,
   },
   buttonContainer: {
     alignItems: 'flex-end',
@@ -214,6 +260,54 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  commentsContainer: {
+    marginTop: 20,
+  },
+  commentIcon: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  commentsSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    paddingTop: 10,
+  },
+  commentItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  commentProfileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+  commentContent: {
+    marginLeft: 10,
+  },
+  commentFullName: {
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  commentText: {
+    color: '#555',
+  },
+  addCommentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  commentInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  addCommentButton: {
+    marginLeft: 10,
   },
 });
 
